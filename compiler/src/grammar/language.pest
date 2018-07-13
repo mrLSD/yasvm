@@ -1,4 +1,4 @@
-WHITESPACE = _{ " " | "\t" }
+WHITESPACE 	= _{ " " | "\t" }
 
 // Source code representation
 //======================
@@ -19,23 +19,38 @@ hex_digit	= { ASCII_HEX_DIGIT }
 //======================
 
 // Comments
-comments = _{ ( "//" ~ ANY* ) | ( "/*" ~ ( !"*/" ~ ANY )* ~ "*/" ) }
+comments 	= _{ ( "//" ~ ANY* ) | ( "/*" ~ ( !"*/" ~ ANY )* ~ "*/" ) }
 
 // Semicolons
-semicolon = { ";" }
+semicolon 	= { ";" }
 
 // Identifiers
-identifier = { letter+ ~ ( letter | unicode_digit )* }
+identifier 	= { !predeclared_identifiers ~ letter+ ~ ( letter | unicode_digit )* }
 
-keywords = {
-    "break" | "case" | "chan" | "const" | "continue" |
-    "default" | "defer" | "else" | "fallthrough" | "for"
-}
-operators = {
-    "+" | "-" | "*" | "/" | "%" | "&"
+// Keywords
+keywords 	= {
+    "break"       | "case"    | "chan"   | "const"     |
+    "continue"    | "default" | "defer"  | "else"      |
+    "fallthrough" | "for"     | "func"   | "go"        |
+    "goto"        | "if"      | "import" | "interface" |
+    "map"         | "package" | "range"  | "return"    |
+    "select"      | "struct"  | "switch" | "type"      |
+    "var"
 }
 
-// Integer literals ¶
+// Operators and punctuation
+operators 	= {
+    "+"  | "-"   | "*"   | "/"   | "%"  | "&"  |
+    "|"  | "^"   | ">>"  | "<<"  | "&^" | "+=" |
+    "-=" | "*="  | "/="  | "%="  | "&=" | "|=" |
+    "^=" | "<<=" | ">>=" | "&^=" | "&&" |
+    "||" | "<-"  | "++"  | "--"  | "==" | "<"  |
+    ">"  | "="   | "!"   | "!="  | ">=" | "<=" |
+    ":=" | "..." | "("   | ")"   | "["  | "]"  |
+    "{"  | "}"   | ","   | "."   | ";"  | ":"
+}
+
+// Integer literals
 int_lit		= { decimal_lit | octal_lit | hex_lit }
 decimal_lit 	= { ASCII_NONZERO_DIGIT ~ decimal_digit }
 octal_lit   	= { "0" ~ octal_digit* }
