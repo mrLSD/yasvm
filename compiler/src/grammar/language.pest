@@ -65,6 +65,19 @@ float_lit 	= {
 decimals  	= { decimal_digit+ }
 exponent  	= { ( "e" | "E" ) ~ ( "+" | "-" )? ~ decimals }
 
+// Imaginary literals
+imaginary_lit 	= { ( decimals | float_lit ) ~ "i" }
+
+// Rune literals
+rune_lit         = { "'" ~ ( unicode_value | byte_value ) ~ "'" }
+unicode_value    = { unicode_char | little_u_value | big_u_value | escaped_char }
+byte_value       = { octal_byte_value | hex_byte_value }
+octal_byte_value = { "\\" ~ octal_digit{3} }
+hex_byte_value   = { "\\" ~ "x" ~ hex_digit{2} }
+little_u_value   = { "\\" ~ "u" ~ hex_digit{4} }
+big_u_value      = { "\\" ~ "U" ~ hex_digit{8} }
+escaped_char     = { "\\" ~ ( "a" | "b" | "f" | "n" | "r" | "t" | "v" | "\\" | "'" | "\"" ) }
+
 // Declarations and scope
 //======================
 
