@@ -78,6 +78,11 @@ little_u_value   = { "\\" ~ "u" ~ hex_digit{4} }
 big_u_value      = { "\\" ~ "U" ~ hex_digit{8} }
 escaped_char     = { "\\" ~ ( "a" | "b" | "f" | "n" | "r" | "t" | "v" | "\\" | "'" | "\"" ) }
 
+// String literals
+string_lit             = { raw_string_lit | interpreted_string_lit }
+raw_string_lit         = { "`" ~ ( unicode_char | newline )* ~ "`" }
+interpreted_string_lit = { "\"" ~ ( unicode_value | byte_value )* ~ "\"" }
+
 // Declarations and scope
 //======================
 
@@ -102,3 +107,29 @@ predeclared_functions = {
     "make"    | "new"    | "panic"   | "print"   |
     "println" | "real"   | "recover"
 }
+
+// Expressions
+//======================
+
+// Operands
+Operand     	= { Literal | OperandName | ( "(" ~ Expression ~ ")" ) }
+Literal     	= { BasicLit | CompositeLit | FunctionLit }
+BasicLit    	= { int_lit | float_lit | imaginary_lit | rune_lit | string_lit }
+OperandName 	= { identifier | QualifiedIdent }
+
+// Qualified identifiers
+QualifiedIdent 	= { PackageName ~ "." ~ identifier }
+
+// Composite literals
+CompositeLit  	= { LiteralType ~ LiteralValue }
+LiteralType   	=  {
+	StructType | ArrayType |
+	( "[" ~ "..." ~ "]" ~ ElementType ) |
+	SliceType | MapType | TypeName
+}
+LiteralValue  	= { "{" ~ ( ElementList ~ ","? )? ~ "}" }
+ElementList   	= { KeyedElement ~ (  "," ~ KeyedElement )* }
+KeyedElement  	= { ( Key ~ ":" )? ~ Element }
+Key           	= { FieldName | Expression | LiteralValue }
+FieldName     	= { identifier }
+Element       	= { Expression | LiteralValue }
