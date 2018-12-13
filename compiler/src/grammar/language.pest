@@ -176,3 +176,23 @@ add_op     	= { "+" | "-" | "|" | "^" }
 mul_op     	= { "*" | "/" | "%" | "<<" | ">>" | "&" | "&^" }
 
 unary_op   	= { "+" | "-" | "!" | "^" | "*" | "&" | "<-" }
+
+// Conversions
+Conversion 	= { Type ~ "(" ~ Expression ~ ( "," )? ~ ")" }
+
+// Statements
+Statement 	= {
+	Declaration  | LabeledStmt | SimpleStmt      |
+	GoStmt       | ReturnStmt  | BreakStmt       |
+	ContinueStmt | GotoStmt    | FallthroughStmt |
+	Block        | IfStmt      | SwitchStmt      |
+	SelectStmt   | ForStmt     | DeferStmt
+}
+
+SimpleStmt 	= {
+	EmptyStmt  | ExpressionStmt | SendStmt     |
+	IncDecStmt | Assignment     | ShortVarDecl
+}
+
+// Empty statements
+EmptyStmt 	= { "" }
