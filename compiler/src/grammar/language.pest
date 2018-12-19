@@ -1,0 +1,15 @@
+unicode_letter 	= { LETTER }
+unicode_digit  	= { NUMBER }
+letter         	= { unicode_letter | "_" }
+decimal_digit	= { ASCII_DIGIT }
+octal_digit	= { ASCII_OCT_DIGIT }
+hex_digit	= { ASCII_HEX_DIGIT }
+
+identifier = { letter+ ~ ( letter | unicode_digit )* }
+keywords = {
+    "break" | "case" | "chan" | "const" | "continue" |
+    "default" | "defer" | "else" | "fallthrough" | "for"
+}
+operators = {
+    "+" | "-" | "*" | "/" | "%" | "&"
+}

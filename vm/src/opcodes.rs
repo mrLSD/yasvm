@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 /// Opcode Instructions data
 /// contain Opcode and Opcode data if exist.
 /// It's possible that Opcode not recognized

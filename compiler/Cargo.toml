@@ -1,0 +1,10 @@
+[package]
+name = "yasvm-compiler"
+version = "0.1.0"
+authors = ["Evgeny Ukhanov <mrlsd@ya.ru>"]
+edition = "2018"
+description = "YASVM - language parser and compiler"
+
+[dependencies]
+pest = "2"
+pest_derive = "2"
