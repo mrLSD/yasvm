@@ -181,6 +181,7 @@ unary_op   	= { "+" | "-" | "!" | "^" | "*" | "&" | "<-" }
 Conversion 	= { Type ~ "(" ~ Expression ~ ( "," )? ~ ")" }
 
 // Statements
+//=======================================
 Statement 	= {
 	Declaration  | LabeledStmt | SimpleStmt      |
 	GoStmt       | ReturnStmt  | BreakStmt       |
@@ -247,3 +248,22 @@ PostStmt 	= { SimpleStmt }
 
 // For statements with range clause
 RangeClause 	= { ( ( ExpressionList ~ "=" ) | ( IdentifierList ~ ":=" ) )? ~ "range" ~ Expression }
+
+// Go statements
+GoStmt 		= { "go" ~ Expression }
+
+// Select statements
+SelectStmt 	= { "select" ~ "{" ~ CommClause* ~ "}" }
+CommClause 	= { CommCase ~ ":" ~ StatementList }
+CommCase   	= { "case" ~ ( ( SendStmt | RecvStmt ) | "default" ) }
+RecvStmt   	= { ( ExpressionList ~ "=" | IdentifierList ~":=" )? ~ RecvExpr }
+RecvExpr   	= { Expression }
+
+// Return statements
+ReturnStmt 	= { "return" ~ ExpressionList? }
+
+// Break statements
+BreakStmt 	= { "break" ~ Label? }
+
+// Continue statements
+ContinueStmt 	= { "continue" ~ Label? }
