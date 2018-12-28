@@ -267,3 +267,27 @@ BreakStmt 	= { "break" ~ Label? }
 
 // Continue statements
 ContinueStmt 	= { "continue" ~ Label? }
+
+// Goto statements
+GotoStmt 	= { "goto" ~ Label }
+
+// Fallthrough statements
+FallthroughStmt = { "fallthrough" }
+
+// Defer statements
+DeferStmt 	= { "defer" ~ Expression }
+
+// Packages
+//===================================
+
+// Source file organization
+SourceFile 	= { PackageClause ~ ";" ~ ( ImportDecl ~ ";" )* ~ ( TopLevelDecl ~ ";" )* }
+
+// Package clause
+PackageClause  	= { "package" ~ PackageName }
+PackageName    	= { identifier }
+
+// Import declarations
+ImportDecl      = { "import" ~ ( ImportSpec | ( "(" ~ ( ImportSpec ~ ";" )* ~ ")" ) ) }
+ImportSpec      = { ( "." | PackageName )? ~ ImportPath }
+ImportPath  	= { string_lit }
