@@ -190,13 +190,12 @@ StatementList 	= { ( Statement ~ ";"? )* }
 
 // Statements
 //=======================================
-// FIXME
 Statement 	= {
-	Declaration  | LabeledStmt | SimpleStmt      |
-//	GoStmt       | ReturnStmt  | BreakStmt       |
-//	ContinueStmt | GotoStmt    | FallthroughStmt |
-	Block        | IfStmt      | SwitchStmt      |
-	SelectStmt   | ForStmt     | DeferStmt
+	Declaration  | LabeledStmt | ForStmt         |
+	GoStmt       | ReturnStmt  | BreakStmt       |
+	ContinueStmt | GotoStmt    | FallthroughStmt |
+	IfStmt       | SwitchStmt  | DeferStmt       |
+	SelectStmt   | SimpleStmt  | Block
 }
 
 // Function declarations
@@ -225,7 +224,7 @@ CompositeLit  	= { LiteralType ~ LiteralValue }
 LiteralType   	=  {
 	StructType | ArrayType |
 	( "[" ~ "..." ~ "]" ~ ElementType ) |
-	SliceType | MapType | TypeName
+	SliceType | MapType
 }
 LiteralValue  	= { "{" ~ ( ElementList ~ ","? )? ~ "}" }
 ElementList   	= { KeyedElement ~ (  "," ~ KeyedElement )* }
@@ -281,7 +280,7 @@ TypeSwitchCase  = { ( "case" ~ TypeList ) | "default" }
 TypeList        = { Type ~ ( "," ~ Type )* }
 
 // For statements
-ForStmt 	= { "for" ~ ( Condition | ForClause | RangeClause )? ~ Block }
+ForStmt 	= { "for" ~ ( ForClause | RangeClause | Condition )? ~ Block }
 Condition 	= { Expression }
 
 // For statements with for clause
@@ -316,3 +315,6 @@ BreakStmt 	= { "break" ~ Label? }
 
 // Continue statements
 ContinueStmt 	= { "continue" ~ Label? }
+
+// Go statements
+GoStmt 		= { "go" ~ Expression }
