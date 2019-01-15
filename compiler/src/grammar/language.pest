@@ -86,8 +86,10 @@ interpreted_string_lit = { "\"" ~ ( unicode_value | byte_value )* ~ "\"" }
 // Declarations and scope
 //======================
 
-// Predeclared identifiers
+Declaration   	=  { ConstDecl | TypeDecl | VarDecl }
+TopLevelDecl  	=  { Declaration | FunctionDecl | MethodDecl }
 
+// Predeclared identifiers
 predeclared_identifiers = {
     predeclared_types | predeclared_constants |
     predeclared_zero_value | predeclared_functions
@@ -107,6 +109,20 @@ predeclared_functions = {
     "make"    | "new"    | "panic"   | "print"   |
     "println" | "real"   | "recover"
 }
+
+// Constant declarations
+ConstDecl      	= { "const" ~ ( ConstSpec | ( "(" ~ ( ConstSpec ~ ";" )* ~ ")" ) ) }
+ConstSpec      	= { IdentifierList ~ ( Type? ~ "=" ~ ExpressionList )? }
+
+IdentifierList 	= { identifier ~ ( "," ~ identifier )* }
+ExpressionList 	= { Expression ~ ( "," ~ Expression )* }
+
+// Type declarations
+ypeDecl 	= { "type" ~ ( TypeSpec | ( "(" ~ ( TypeSpec ~ ";" )* ~ ")" ) ) }
+TypeSpec 	= { AliasDecl | TypeDef }
+
+// Alias declarations
+AliasDecl 	= { identifier ~ "=" ~ Type }
 
 // Expressions
 //======================
