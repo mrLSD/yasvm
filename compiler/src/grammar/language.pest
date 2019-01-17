@@ -124,6 +124,25 @@ TypeSpec 	= { AliasDecl | TypeDef }
 // Alias declarations
 AliasDecl 	= { identifier ~ "=" ~ Type }
 
+// definitions
+TypeDef 	= { identifier ~ Type }
+
+// Variable declarations
+VarDecl     	= { "var" ~ ( VarSpec | ( "("  ~ ( VarSpec ~ ";" )* ~ ")" ) ) }
+VarSpec     	= { IdentifierList ~ ( Type ~ ( "=" ~ ExpressionList )? | ( "=" ~ ExpressionList ) ) }
+
+// Short variable declarations
+ShortVarDecl 	= { IdentifierList ~ ":=" ~ ExpressionList }
+
+// Function declarations
+FunctionDecl 	= { "func" ~ FunctionName ~ Signature ~ FunctionBody? }
+FunctionName 	= { identifier }
+FunctionBody 	= { Block }
+
+// Method declarations
+MethodDecl 	= { "func" ~ Receiver ~ MethodName ~ Signature ~ FunctionBody? }
+Receiver   	= { Parameters }
+
 // Expressions
 //======================
 
