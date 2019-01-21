@@ -83,6 +83,14 @@ string_lit             = { raw_string_lit | interpreted_string_lit }
 raw_string_lit         = { "`" ~ ( unicode_char | newline )* ~ "`" }
 interpreted_string_lit = { "\"" ~ ( unicode_value | byte_value )* ~ "\"" }
 
+// Types
+//======================
+
+// Blocks
+//======================
+Block 		= { "{" ~ StatementList ~ "}" }
+StatementList 	= { ( Statement ~ ";"? )* }
+
 // Declarations and scope
 //======================
 
@@ -111,14 +119,14 @@ predeclared_functions = {
 }
 
 // Constant declarations
-ConstDecl      	= { "const" ~ ( ConstSpec | ( "(" ~ ( ConstSpec ~ ";" )* ~ ")" ) ) }
+ConstDecl      	= { "const" ~ ( ConstSpec | ( "(" ~ ( ConstSpec ~ ";"? )* ~ ")" ) ) }
 ConstSpec      	= { IdentifierList ~ ( Type? ~ "=" ~ ExpressionList )? }
 
 IdentifierList 	= { identifier ~ ( "," ~ identifier )* }
 ExpressionList 	= { Expression ~ ( "," ~ Expression )* }
 
 // Type declarations
-ypeDecl 	= { "type" ~ ( TypeSpec | ( "(" ~ ( TypeSpec ~ ";" )* ~ ")" ) ) }
+ypeDecl 	= { "type" ~ ( TypeSpec | ( "(" ~ ( TypeSpec ~ ";"? )* ~ ")" ) ) }
 TypeSpec 	= { AliasDecl | TypeDef }
 
 // Alias declarations
@@ -128,7 +136,7 @@ AliasDecl 	= { identifier ~ "=" ~ Type }
 TypeDef 	= { identifier ~ Type }
 
 // Variable declarations
-VarDecl     	= { "var" ~ ( VarSpec | ( "("  ~ ( VarSpec ~ ";" )* ~ ")" ) ) }
+VarDecl     	= { "var" ~ ( VarSpec | ( "("  ~ ( VarSpec ~ ";"? )* ~ ")" ) ) }
 VarSpec     	= { IdentifierList ~ ( Type ~ ( "=" ~ ExpressionList )? | ( "=" ~ ExpressionList ) ) }
 
 // Short variable declarations
@@ -252,19 +260,19 @@ Assignment 	= { ExpressionList ~ assign_op ~ ExpressionList }
 assign_op 	= { ( add_op | mul_op )? ~ "=" }
 
 // If statements
-IfStmt 		= { "if" ~ ( SimpleStmt ~ ";" )? ~ Expression ~ Block ~ ( "else" ~ ( IfStmt | Block ) )? }
+IfStmt 		= { "if" ~ ( SimpleStmt ~ ";"? )? ~ Expression ~ Block ~ ( "else" ~ ( IfStmt | Block ) )? }
 
 // Switch statements
 SwitchStmt 	= { ExprSwitchStmt | TypeSwitchStmt }
 
 // Expression switches
-ExprSwitchStmt 	= { "switch" ~ ( SimpleStmt ~ ";" )? ~ ( Expression )? ~ "{" ~ ExprCaseClause* ~ "}" }
+ExprSwitchStmt 	= { "switch" ~ ( SimpleStmt ~ ";"? )? ~ ( Expression )? ~ "{" ~ ExprCaseClause* ~ "}" }
 ExprCaseClause 	= { ExprSwitchCase ~ ":" ~ StatementList }
 ExprSwitchCase	= { ( "case" ~ ExpressionList ) | "default" }
 
 // Type switches
 TypeSwitchStmt  = {
-	"switch" ~ ( SimpleStmt ~ ";" )? ~ TypeSwitchGuard
+	"switch" ~ ( SimpleStmt ~ ";"? )? ~ TypeSwitchGuard
 	~ "{" ~ ( TypeCaseClause )* ~ "}"
 }
 TypeSwitchGuard = { ( identifier ~ ":=" )? ~ PrimaryExpr ~ "." ~ "(" ~ "type" ~ ")" }
@@ -316,13 +324,13 @@ DeferStmt 	= { "defer" ~ Expression }
 //===================================
 
 // Source file organization
-SourceFile 	= { PackageClause ~ ";" ~ ( ImportDecl ~ ";" )* ~ ( TopLevelDecl ~ ";" )* }
+SourceFile 	= { PackageClause ~ ";"? ~ ( ImportDecl ~ ";"? )* ~ ( TopLevelDecl ~ ";"? )* }
 
 // Package clause
 PackageClause  	= { "package" ~ PackageName }
 PackageName    	= { identifier }
 
 // Import declarations
-ImportDecl      = { "import" ~ ( ImportSpec | ( "(" ~ ( ImportSpec ~ ";" )* ~ ")" ) ) }
+ImportDecl      = { "import" ~ ( ImportSpec | ( "(" ~ ( ImportSpec ~ ";"? )* ~ ")" ) ) }
 ImportSpec      = { ( "." | PackageName )? ~ ImportPath }
 ImportPath  	= { string_lit }
