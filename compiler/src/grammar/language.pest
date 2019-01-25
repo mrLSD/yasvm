@@ -85,6 +85,31 @@ interpreted_string_lit = { "\"" ~ ( unicode_value | byte_value )* ~ "\"" }
 
 // Types
 //======================
+Type      	= { TypeName | TypeLit | ( "(" ~ Type ~ ")" ) }
+TypeName  	= { identifier | QualifiedIdent }
+TypeLit   	= {
+	ArrayType    | StructType    | PointerType |
+	FunctionType | InterfaceType | SliceType   |
+	MapType      | ChannelType
+}
+
+// Array types
+ArrayType   	= { "[" ~ ArrayLength ~ "]" ~ ElementType }
+ArrayLength 	= { Expression }
+ElementType 	= { Type }
+
+// Slice types
+SliceType 	= { "[" ~ "]" ~ ElementType }
+
+// Struct types
+StructType    	= { "struct" ~ "{" ~ ( FieldDecl ~ ";"? ) ~ "}" }
+FieldDecl     	= { ( ( IdentifierList ~ Type ) | EmbeddedField ) ~ Tag? }
+EmbeddedField 	= { "*"? ~ TypeName }
+Tag           	= { string_lit }
+
+// Pointer types
+PointerType 	= { "*" ~ BaseType }
+BaseType    	= { Type }
 
 // Blocks
 //======================
