@@ -111,6 +111,27 @@ Tag           	= { string_lit }
 PointerType 	= { "*" ~ BaseType }
 BaseType    	= { Type }
 
+// Function types
+FunctionType   	= { "func" ~ Signature }
+Signature      	= { Parameters ~ Result? }
+Result         	= { Parameters | Type }
+Parameters     	= { "(" ~ ( ParameterList ~ ","? )? ~ ")" }
+ParameterList  	= { ParameterDecl ~ ( "," ~ ParameterDecl )* }
+ParameterDecl  	= { IdentifierList? ~ "..."? ~ Type }
+
+// Interface types
+InterfaceType      = { "interface" ~ "{" ~ ( MethodSpec ~ ";"? )* ~ "}" }
+MethodSpec         = { ( MethodName ~ Signature ) | InterfaceTypeName }
+MethodName         = { identifier }
+InterfaceTypeName  = { TypeName }
+
+// Map types
+MapType     	= { "map" ~ "[" ~ KeyType ~ "]" ~ ElementType }
+KeyType     	= { Type }
+
+// Channel types
+ChannelType = { ( "chan" | ( "chan" ~ "<-" ) | ( "<-" ~ "chan" ) ) ~ ElementType }
+
 // Blocks
 //======================
 Block 		= { "{" ~ StatementList ~ "}" }
@@ -151,7 +172,7 @@ IdentifierList 	= { identifier ~ ( "," ~ identifier )* }
 ExpressionList 	= { Expression ~ ( "," ~ Expression )* }
 
 // Type declarations
-ypeDecl 	= { "type" ~ ( TypeSpec | ( "(" ~ ( TypeSpec ~ ";"? )* ~ ")" ) ) }
+TypeDecl 	= { "type" ~ ( TypeSpec | ( "(" ~ ( TypeSpec ~ ";"? )* ~ ")" ) ) }
 TypeSpec 	= { AliasDecl | TypeDef }
 
 // Alias declarations
@@ -206,15 +227,16 @@ Element       	= { Expression | LiteralValue }
 FunctionLit 	= { "func" ~ Signature ~ FunctionBody }
 
 // Primary expressions
+// FIXME
 PrimaryExpr 	= {
 	Operand |
 	Conversion |
-	MethodExpr |
-	( PrimaryExpr ~ Selector ) |
-	( PrimaryExpr ~ Index ) |
-	( PrimaryExpr ~ Slice ) |
-	( PrimaryExpr ~ TypeAssertion ) |
-	( PrimaryExpr ~ Arguments )
+	MethodExpr
+//	( PrimaryExpr ~ Selector ) |
+//	( PrimaryExpr ~ Index ) |
+//	( PrimaryExpr ~ Slice ) |
+//	( PrimaryExpr ~ TypeAssertion ) |
+//	( PrimaryExpr ~ Arguments )
 }
 
 Selector       	= { "." ~ identifier }
@@ -235,7 +257,9 @@ MethodExpr    	= { ReceiverType ~ "." ~ MethodName }
 ReceiverType  	= { Type }
 
 // Operators
-Expression 	= { UnaryExpr | ( Expression ~ binary_op ~ Expression ) }
+// FIXME
+//Expression 	= { UnaryExpr | ( Expression ~ binary_op ~ Expression ) }
+Expression 	= { UnaryExpr }
 UnaryExpr  	= { PrimaryExpr | ( unary_op ~ UnaryExpr ) }
 
 binary_op  	= { "||" | "&&" | rel_op | add_op | mul_op }
@@ -259,12 +283,9 @@ Statement 	= {
 }
 
 SimpleStmt 	= {
-	EmptyStmt  | ExpressionStmt | SendStmt     |
+	ExpressionStmt | SendStmt     |
 	IncDecStmt | Assignment     | ShortVarDecl
 }
-
-// Empty statements
-EmptyStmt 	= { ( ) }
 
 // Labeled statements
 LabeledStmt 	= { Label ~ ":" ~ Statement }
