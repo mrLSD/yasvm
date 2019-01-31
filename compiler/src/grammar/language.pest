@@ -227,16 +227,15 @@ Element       	= { Expression | LiteralValue }
 FunctionLit 	= { "func" ~ Signature ~ FunctionBody }
 
 // Primary expressions
-// FIXME
 PrimaryExpr 	= {
-	Operand |
-	Conversion |
-	MethodExpr
-//	( PrimaryExpr ~ Selector ) |
-//	( PrimaryExpr ~ Index ) |
-//	( PrimaryExpr ~ Slice ) |
-//	( PrimaryExpr ~ TypeAssertion ) |
-//	( PrimaryExpr ~ Arguments )
+	( Operand | Conversion | MethodExpr ) ~
+	(
+	   Selector |
+	   Index |
+	   Slice |
+	   TypeAssertion |
+	   Arguments
+	)*
 }
 
 Selector       	= { "." ~ identifier }
@@ -257,9 +256,7 @@ MethodExpr    	= { ReceiverType ~ "." ~ MethodName }
 ReceiverType  	= { Type }
 
 // Operators
-// FIXME
-//Expression 	= { UnaryExpr | ( Expression ~ binary_op ~ Expression ) }
-Expression 	= { UnaryExpr }
+Expression 	= { UnaryExpr ~ ( binary_op ~ Expression )* }
 UnaryExpr  	= { PrimaryExpr | ( unary_op ~ UnaryExpr ) }
 
 binary_op  	= { "||" | "&&" | rel_op | add_op | mul_op }
