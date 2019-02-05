@@ -1,4 +1,5 @@
 #![feature(custom_attribute)]
+#![allow(unused_imports)]
 
 mod language_test;
 
@@ -8,13 +9,14 @@ use pest_derive::Parser;
 
 #[derive(Parser, Debug)]
 #[grammar = "grammar/language.pest"]
-struct LanguageParser;
+pub struct LanguageParser;
 
 #[derive(Debug)]
 pub struct LanguageAST;
 
 pub struct AST;
 
+/*
 impl AST {
     pub fn parse_code(code: &str) -> Result<LanguageAST, Error<Rule>> {
         let ast = LanguageAST {};
@@ -25,3 +27,4 @@ impl AST {
         Ok(ast)
     }
 }
+*/

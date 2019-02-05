@@ -1,21 +1,21 @@
-WHITESPACE 	= _{ " " | "\t" }
+WHITESPACE 	= _{ " " | "\t" | newline }
 
 // Source code representation
 //======================
 
 // Characters
 newline 	= { NEWLINE }
-unicode_char	= { !newline ~ ANY+ }
+unicode_char	= { !newline ~ ANY }
 unicode_letter 	= { LETTER }
 unicode_digit  	= { NUMBER }
 
-// Letters and digits ¶
+// Letters and digits
 letter         	= { unicode_letter | "_" }
 decimal_digit	= { ASCII_DIGIT }
 octal_digit	= { ASCII_OCT_DIGIT }
 hex_digit	= { ASCII_HEX_DIGIT }
 
-// Lexical elements ¶
+// Lexical elements
 //======================
 
 // Comments
