@@ -1,0 +1,185 @@
+main		= { SOI ~ SourceFile ~ EOI }
+WHITESPACE 	= _{ " " | "\t" | newline }
+
+SourceFile 	= { PackageClause ~ ";"? ~ ( ImportDecl ~ ";"? )* ~ ( TopLevelDecl ~ ";"? )* }
+
+// Characters
+newline 	= { NEWLINE }
+unicode_char	= { !newline ~ ANY }
+unicode_letter 	= { LETTER }
+unicode_digit  	= { NUMBER }
+
+// Letters and digits
+letter         	= { unicode_letter | "_" }
+decimal_digit	= { ASCII_DIGIT }
+octal_digit	= { ASCII_OCT_DIGIT }
+hex_digit	= { ASCII_HEX_DIGIT }
+
+// Identifiers
+//identifier 	= @{ !predeclared_identifiers ~ letter+ ~ ( letter | unicode_digit )* }
+identifier 	= @{ letter+ ~ ( letter | unicode_digit )* }
+
+// Integer literals
+int_lit		= { decimal_lit | octal_lit | hex_lit }
+decimal_lit 	= { ASCII_NONZERO_DIGIT ~ decimal_digit* }
+octal_lit   	= { "0" ~ octal_digit* }
+hex_lit     	= { "0" ~ ( "x" | "X" ) ~ hex_digit+ }
+
+// Floating-point literals
+float_lit 	= {
+	( decimals ~ "." ~ decimals? ~ exponent? ) |
+	( decimals ~ exponent ) |
+	( "." ~ decimals ~ exponent? )
+}
+decimals  	= { decimal_digit+ }
+exponent  	= { ( "e" | "E" ) ~ ( "+" | "-" )? ~ decimals }
+
+// Imaginary literals
+imaginary_lit 	= { ( decimals | float_lit ) ~ "i" }
+
+// Rune literals
+rune_lit         = { "'" ~ ( !"'" ~ unicode_value | byte_value ) ~ "'" }
+unicode_value    = { unicode_char | little_u_value | big_u_value | escaped_char }
+byte_value       = { octal_byte_value | hex_byte_value }
+octal_byte_value = { "\\" ~ octal_digit{3} }
+hex_byte_value   = { "\\" ~ "x" ~ hex_digit{2} }
+little_u_value   = { "\\" ~ "u" ~ hex_digit{4} }
+big_u_value      = { "\\" ~ "U" ~ hex_digit{8} }
+escaped_char     = { "\\" ~ ( "a" | "b" | "f" | "n" | "r" | "t" | "v" | "\\" | "'" | "\"" ) }
+
+// String literals
+string_lit             = { raw_string_lit | interpreted_string_lit }
+raw_string_lit         = { "`" ~ ( !"`" ~ unicode_char | newline )* ~ "`" }
+interpreted_string_lit = { "\"" ~ ( !"\"" ~ unicode_value | byte_value )* ~ "\"" }
+
+
+// Package clause
+PackageClause  	= { "package" ~ PackageName }
+PackageName    	= { identifier }
+
+// Import declarations
+ImportDecl      = { "import" ~ ( ImportSpec | ( "(" ~ ( ImportSpec ~ ";"? )* ~ ")" ) ) }
+ImportSpec      = { ( "." | PackageName )? ~ ImportPath }
+ImportPath  	= { string_lit }
+
+// Declarations and scope
+//======================
+// FIXME
+//TopLevelDecl  	=  { Declaration | FunctionDecl | MethodDecl }
+Declaration   	=  { ConstDecl | TypeDecl | VarDecl }
+TopLevelDecl  	=  { Declaration }
+
+// Qualified identifiers
+QualifiedIdent 	= { PackageName ~ "." ~ identifier }
+
+// Constant declarations
+ConstDecl      	= { "const" ~ ( ConstSpec | ( "(" ~ ( ConstSpec ~ ";"? )* ~ ")" ) ) }
+ConstSpec      	= { IdentifierList ~ ( Type? ~ "=" ~ ExpressionList )? }
+
+IdentifierList 	= { identifier ~ ( "," ~ identifier )* }
+ExpressionList 	= { Expression ~ ( "," ~ Expression )* }
+
+// Types
+//======================
+// FIXME
+Type      	= { TypeLit | ( "(" ~ Type ~ ")" ) | TypeName }
+TypeName  	= { QualifiedIdent | identifier }
+TypeLit   	= {
+	ArrayType    | StructType    | PointerType | SliceType
+}
+//TypeLit   	= {
+//	ArrayType    | StructType    | PointerType |
+//	FunctionType | InterfaceType | SliceType   |
+//	MapType      | ChannelType
+//}
+
+
+// Array types
+ArrayType   	= { "[" ~ ArrayLength ~ "]" ~ ElementType }
+ArrayLength 	= { Expression }
+ElementType 	= { Type }
+
+// Slice types
+SliceType 	= { "[" ~ "]" ~ ElementType }
+
+// Struct types
+StructType    	= { "struct" ~ "{" ~ ( FieldDecl ~ ";"? )* ~ "}" }
+FieldDecl     	= { ( ( IdentifierList ~ Type ) | EmbeddedField ) ~ Tag? }
+EmbeddedField 	= { "*"? ~ TypeName }
+Tag           	= { string_lit }
+
+// Pointer types
+PointerType 	= { "*" ~ BaseType }
+BaseType    	= { Type }
+
+// Operators
+Expression 	= { UnaryExpr ~ ( binary_op ~ Expression )* }
+UnaryExpr  	= { PrimaryExpr | ( unary_op ~ UnaryExpr ) }
+
+binary_op  	= { "||" | "&&" | rel_op | add_op | mul_op }
+rel_op     	= { "==" | "!=" | "<" | "<=" | ">" | ">=" }
+add_op     	= { "+" | "-" | "|" | "^" }
+mul_op     	= { "*" | "/" | "%" | "<<" | ">>" | "&" | "&^" }
+
+unary_op   	= { "+" | "-" | "!" | "^" | "*" | "&" | "<-" }
+
+// Conversions
+Conversion 	= { Type ~ "(" ~ Expression ~ ( "," )? ~ ")" }
+
+// Operands
+// FIXME
+Operand     	= { Literal | OperandName | ( "(" ~ Expression ~ ")" ) }
+//Literal     	= { BasicLit | CompositeLit | FunctionLit }
+Literal     	= { BasicLit }
+BasicLit    	= { int_lit | float_lit | imaginary_lit | rune_lit | string_lit }
+OperandName 	= { identifier | QualifiedIdent }
+
+// Interface types
+// FIXME
+//InterfaceType      = { "interface" ~ "{" ~ ( MethodSpec ~ ";"? )* ~ "}" }
+//MethodSpec         = { ( MethodName ~ Signature ) | InterfaceTypeName }
+MethodName         = { identifier }
+InterfaceTypeName  = { TypeName }
+
+// Primary expressions
+PrimaryExpr 	= {
+	( Operand | Conversion | MethodExpr ) ~
+	(
+	   Selector |
+	   Index |
+	   Slice |
+	   TypeAssertion |
+	   Arguments
+	)*
+}
+
+Selector       	= { "." ~ identifier }
+Index          	= { "[" ~ Expression ~ "]" }
+Slice          	= {
+	( "[" ~ Expression? ~ ":" ~ Expression? ~ "]" ) |
+	( "[" ~ Expression? ~ ":" ~ Expression ~ ":" ~ Expression ~"]" )
+}
+TypeAssertion  	= { "." ~ "(" ~ Type ~ ")" }
+Arguments      	= { "(" ~ (
+	( ExpressionList | Type ~ ( "," ~ ExpressionList )? )
+	~ ( "..." )? ~ ( "," )?
+	)? ~ ")"
+}
+
+// Method expressions
+MethodExpr    	= { ReceiverType ~ "." ~ MethodName }
+ReceiverType  	= { Type }
+
+// Variable declarations
+VarDecl     	= { "var" ~ ( VarSpec | ( "("  ~ ( VarSpec ~ ";"? )* ~ ")" ) ) }
+VarSpec     	= { IdentifierList ~ ( Type ~ ( "=" ~ ExpressionList )? | ( "=" ~ ExpressionList ) ) }
+
+// Type declarations
+TypeDecl 	= { "type" ~ ( TypeSpec | ( "(" ~ ( TypeSpec ~ ";"? )* ~ ")" ) ) }
+TypeSpec 	= { AliasDecl | TypeDef }
+
+// Alias declarations
+AliasDecl 	= { identifier ~ "=" ~ Type }
+
+// definitions
+TypeDef 	= { identifier ~ Type }

@@ -5,6 +5,7 @@ use pest::Parser;
 fn test_characters() {
     // newline
     let rules = [
+        (" ", false),
         ("Ю", false),
         ("⇨", false),
         ("_", false),
@@ -18,6 +19,7 @@ fn test_characters() {
 
     // unicode_char
     let rules = [
+        (" ", false),
         ("Ю", true),
         ("⇨", true),
         ("_", true),
@@ -31,7 +33,8 @@ fn test_characters() {
 
     // unicode_letter
     let rules = [
-        ("Ю", true),
+        (" ", false),
+        ("ЮЮ", true),
         ("⇨", false),
         ("_", false),
         ("1", false),
@@ -44,6 +47,7 @@ fn test_characters() {
 
     // unicode_digit
     let rules = [
+        (" ", false),
         ("Ю", false),
         ("⇨", false),
         ("_", false),
@@ -61,6 +65,7 @@ fn test_characters() {
 fn test_letters_and_digits() {
     // letter
     let rules = [
+        (" ", false),
         ("Ю", true),
         ("⇨", false),
         ("_", true),
@@ -116,4 +121,50 @@ fn test_letters_and_digits() {
         let res = LanguageParser::parse(Rule::hex_digit, *code);
         assert_eq!(res.is_ok(), *expect);
     });
+}
+
+#[test]
+fn test_identifier() {
+    // identifier
+    let rules = [
+        ("bool", false),
+        ("int64", false),
+        ("true", false),
+        //("ints", true),
+        ("the_test", true),
+        ("the test", true),
+        ("_test", true),
+        ("test", true),
+        ("test123_test", true),
+    ];
+    rules.iter().for_each(|(code, expect)| {
+        let res = LanguageParser::parse(Rule::identifier, *code);
+        if res.is_ok() {
+            let res = res.clone().unwrap().next().unwrap();
+            dbg!((&res.as_str(), &code));
+        }
+        assert_eq!(res.is_ok(), *expect);
+    });
+
+    let code = r#"
+package main
+
+func main() {
+const (
+    tst tst =;
+)
+    tst();
+}
+"#;
+    let res = LanguageParser::parse(Rule::SourceFile, code);
+
+    if res.is_ok() {
+        dbg!(&res.clone().unwrap().tokens());
+        let res = res.clone().unwrap().next().unwrap();
+        dbg!((&res.as_str(), &code));
+    } else {
+        dbg!(&res);
+    }
+
+    assert_eq!(res.is_ok(), true);
 }

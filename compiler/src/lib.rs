@@ -8,7 +8,7 @@ use pest::Parser;
 use pest_derive::Parser;
 
 #[derive(Parser, Debug)]
-#[grammar = "grammar/language.pest"]
+#[grammar = "grammar/simple.pest"]
 pub struct LanguageParser;
 
 #[derive(Debug)]

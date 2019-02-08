@@ -1,3 +1,4 @@
+main		= { SOI ~ SourceFile ~ EOI }
 WHITESPACE 	= _{ " " | "\t" | newline }
 
 // Source code representation
@@ -21,11 +22,9 @@ hex_digit	= { ASCII_HEX_DIGIT }
 // Comments
 comments 	= _{ ( "//" ~ ANY* ) | ( "/*" ~ ( !"*/" ~ ANY )* ~ "*/" ) }
 
-// Semicolons
-semicolon 	= { ";" }
-
 // Identifiers
-identifier 	= { !predeclared_identifiers ~ letter+ ~ ( letter | unicode_digit )* }
+//identifier 	= @{ !predeclared_identifiers ~ letter+ ~ ( letter | unicode_digit )* }
+identifier 	= @{ letter+ ~ ( letter | unicode_digit )* }
 
 // Keywords
 keywords 	= {
@@ -52,7 +51,7 @@ operators 	= {
 
 // Integer literals
 int_lit		= { decimal_lit | octal_lit | hex_lit }
-decimal_lit 	= { ASCII_NONZERO_DIGIT ~ decimal_digit }
+decimal_lit 	= { ASCII_NONZERO_DIGIT ~ decimal_digit* }
 octal_lit   	= { "0" ~ octal_digit* }
 hex_lit     	= { "0" ~ ( "x" | "X" ) ~ hex_digit+ }
 
@@ -124,7 +123,7 @@ InterfaceType      = { "interface" ~ "{" ~ ( MethodSpec ~ ";"? )* ~ "}" }
 MethodSpec         = { ( MethodName ~ Signature ) | InterfaceTypeName }
 MethodName         = { identifier }
 InterfaceTypeName  = { TypeName }
-
+/**
 // Map types
 MapType     	= { "map" ~ "[" ~ KeyType ~ "]" ~ ElementType }
 KeyType     	= { Type }
@@ -367,7 +366,7 @@ DeferStmt 	= { "defer" ~ Expression }
 //===================================
 
 // Source file organization
-SourceFile 	= { PackageClause ~ ";"? ~ ( ImportDecl ~ ";"? )* ~ ( TopLevelDecl ~ ";"? )* }
+SourceFile 	= { WHITESPACE* ~ PackageClause ~ ";"? ~ ( ImportDecl ~ ";"? )* ~ ( TopLevelDecl ~ ";"? )* }
 
 // Package clause
 PackageClause  	= { "package" ~ PackageName }
