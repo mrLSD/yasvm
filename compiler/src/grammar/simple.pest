@@ -79,7 +79,6 @@ ExpressionList 	= { Expression ~ ( "," ~ Expression )* }
 
 // Types
 //======================
-// FIXME
 Type      	= { TypeLit | ( "(" ~ Type ~ ")" ) | TypeName }
 TypeName  	= { QualifiedIdent | identifier }
 TypeLit   	= {
@@ -130,16 +129,13 @@ unary_op   	= { "+" | "-" | "!" | "^" | "*" | "&" | "<-" }
 Conversion 	= { Type ~ "(" ~ Expression ~ ( "," )? ~ ")" }
 
 // Operands
-// FIXME
 Operand     	= { Literal | OperandName | ( "(" ~ Expression ~ ")" ) }
-//Literal     	= { BasicLit | CompositeLit | FunctionLit }
-Literal     	= { BasicLit }
+Literal     	= { BasicLit | CompositeLit | FunctionLit }
 BasicLit    	= { int_lit | float_lit | imaginary_lit | rune_lit | string_lit }
 OperandName 	= { identifier | QualifiedIdent }
 
 // Interface types
-// FIXME
-InterfaceType      = { "interface" ~ "{" ~ ( MethodSpec )* ~ "}" }
+InterfaceType      = { "interface" ~ "{" ~ ( MethodSpec  ~ ";")* ~ "}" }
 MethodSpec         = { ( MethodName ~ Signature ) | InterfaceTypeName }
 MethodName         = { identifier }
 InterfaceTypeName  = { TypeName }
@@ -194,12 +190,13 @@ StatementList 	= { ( Statement ~ ";"? )* }
 
 // Statements
 //=======================================
-Statement 	= { Declaration
-//	Declaration  | LabeledStmt | SimpleStmt      |
+// FIXME
+Statement 	= {
+	Declaration  | LabeledStmt | SimpleStmt      |
 //	GoStmt       | ReturnStmt  | BreakStmt       |
 //	ContinueStmt | GotoStmt    | FallthroughStmt |
-//	Block        | IfStmt      | SwitchStmt      |
-//	SelectStmt   | ForStmt     | DeferStmt
+	Block        | IfStmt      | SwitchStmt      |
+	SelectStmt   | ForStmt     | DeferStmt
 }
 
 // Function declarations
@@ -219,3 +216,103 @@ ParameterDecl  	 = { ( IdentifierList )? ~ ( "..." )? ~ Type }
 // Method declarations
 MethodDecl 	= { "func" ~ Receiver ~ MethodName ~ Signature ~ FunctionBody? }
 Receiver   	= { Parameters }
+
+// Function literals
+FunctionLit 	= { "func" ~ Signature ~ FunctionBody }
+
+// Composite literals
+CompositeLit  	= { LiteralType ~ LiteralValue }
+LiteralType   	=  {
+	StructType | ArrayType |
+	( "[" ~ "..." ~ "]" ~ ElementType ) |
+	SliceType | MapType | TypeName
+}
+LiteralValue  	= { "{" ~ ( ElementList ~ ","? )? ~ "}" }
+ElementList   	= { KeyedElement ~ (  "," ~ KeyedElement )* }
+KeyedElement  	= { ( Key ~ ":" )? ~ Element }
+Key           	= { FieldName | Expression | LiteralValue }
+FieldName     	= { identifier }
+Element       	= { Expression | LiteralValue }
+
+// Labeled statements
+LabeledStmt 	= { Label ~ ":" ~ Statement }
+Label       	= { identifier }
+
+SimpleStmt 	= {
+	SendStmt | IncDecStmt | Assignment | ShortVarDecl | ExpressionStmt
+}
+
+// Expression statements
+ExpressionStmt 	= { Expression }
+
+// Send statements
+SendStmt 	= { Channel ~ "<-" ~ Expression }
+Channel  	= { Expression }
+
+// IncDec statements
+IncDecStmt 	= { Expression ~ ( "++" | "--" ) }
+
+// Assignments
+Assignment 	= { ExpressionList ~ assign_op ~ ExpressionList }
+assign_op 	= { ( add_op | mul_op )? ~ "=" }
+
+// Short variable declarations
+ShortVarDecl 	= { IdentifierList ~ ":=" ~ ExpressionList }
+
+// If statements
+IfStmt 		= { "if" ~ ( SimpleStmt ~ ";"? )? ~ Expression ~ Block ~ ( "else" ~ ( IfStmt | Block ) )? }
+
+// Switch statements
+SwitchStmt 	= { ExprSwitchStmt | TypeSwitchStmt }
+
+// Expression switches
+ExprSwitchStmt 	= { "switch" ~ ( SimpleStmt ~ ";"? )? ~ ( Expression )? ~ "{" ~ ExprCaseClause* ~ "}" }
+ExprCaseClause 	= { ExprSwitchCase ~ ":" ~ StatementList }
+ExprSwitchCase	= { ( "case" ~ ExpressionList ) | "default" }
+
+// Type switches
+TypeSwitchStmt  = {
+	"switch" ~ ( SimpleStmt ~ ";"? )? ~ TypeSwitchGuard
+	~ "{" ~ ( TypeCaseClause )* ~ "}"
+}
+TypeSwitchGuard = { ( identifier ~ ":=" )? ~ PrimaryExpr ~ "." ~ "(" ~ "type" ~ ")" }
+TypeCaseClause  = { TypeSwitchCase ~ ":" ~ StatementList }
+TypeSwitchCase  = { ( "case" ~ TypeList ) | "default" }
+TypeList        = { Type ~ ( "," ~ Type )* }
+
+// For statements
+ForStmt 	= { "for" ~ ( Condition | ForClause | RangeClause )? ~ Block }
+Condition 	= { Expression }
+
+// For statements with for clause
+ForClause 	= { ( InitStmt )? ~ ";" ~ ( Condition )? ~ ";" ~ ( PostStmt )? }
+InitStmt 	= { SimpleStmt }
+PostStmt 	= { SimpleStmt }
+
+// For statements with range clause
+RangeClause 	= { ( ( ExpressionList ~ "=" ) | ( IdentifierList ~ ":=" ) )? ~ "range" ~ Expression }
+
+// Goto statements
+GotoStmt 	= { "goto" ~ Label }
+
+// Fallthrough statements
+FallthroughStmt = { "fallthrough" }
+
+// Defer statements
+DeferStmt 	= { "defer" ~ Expression }
+
+// Select statements
+SelectStmt 	= { "select" ~ "{" ~ CommClause* ~ "}" }
+CommClause 	= { CommCase ~ ":" ~ StatementList }
+CommCase   	= { "case" ~ ( ( SendStmt | RecvStmt ) | "default" ) }
+RecvStmt   	= { ( ExpressionList ~ "=" | IdentifierList ~":=" )? ~ RecvExpr }
+RecvExpr   	= { Expression }
+
+// Return statements
+ReturnStmt 	= { "return" ~ ExpressionList? }
+
+// Break statements
+BreakStmt 	= { "break" ~ Label? }
+
+// Continue statements
+ContinueStmt 	= { "continue" ~ Label? }
