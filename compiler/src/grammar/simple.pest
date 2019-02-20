@@ -5,7 +5,7 @@ SourceFile 	= { PackageClause ~ ";"? ~ ( ImportDecl ~ ";"? )* ~ ( TopLevelDecl ~
 
 // Characters
 newline 	= { NEWLINE }
-unicode_char	= { !newline ~ ANY }
+unicode_char	= @{ !newline ~ ANY }
 unicode_letter 	= { LETTER }
 unicode_digit  	= { NUMBER }
 
@@ -21,31 +21,31 @@ identifier 	= @{ letter+ ~ ( letter | unicode_digit )* }
 
 // Integer literals
 int_lit		= { decimal_lit | octal_lit | hex_lit }
-decimal_lit 	= { ASCII_NONZERO_DIGIT ~ decimal_digit* }
-octal_lit   	= { "0" ~ octal_digit* }
-hex_lit     	= { "0" ~ ( "x" | "X" ) ~ hex_digit+ }
+decimal_lit 	= @{ ASCII_NONZERO_DIGIT ~ decimal_digit* }
+octal_lit   	= @{ "0" ~ octal_digit* }
+hex_lit     	= @{ "0" ~ ( "x" | "X" ) ~ hex_digit+ }
 
 // Floating-point literals
-float_lit 	= {
+float_lit 	= @{
 	( decimals ~ "." ~ decimals? ~ exponent? ) |
 	( decimals ~ exponent ) |
 	( "." ~ decimals ~ exponent? )
 }
-decimals  	= { decimal_digit+ }
-exponent  	= { ( "e" | "E" ) ~ ( "+" | "-" )? ~ decimals }
+decimals  	= @{ decimal_digit+ }
+exponent  	= @{ ( "e" | "E" ) ~ ( "+" | "-" )? ~ decimals }
 
 // Imaginary literals
-imaginary_lit 	= { ( decimals | float_lit ) ~ "i" }
+imaginary_lit 	= @{ ( decimals | float_lit ) ~ "i" }
 
 // Rune literals
-rune_lit         = { "'" ~ ( !"'" ~ unicode_value | byte_value ) ~ "'" }
+rune_lit         = @{ "'" ~ ( !"'" ~ unicode_value | byte_value ) ~ "'" }
 unicode_value    = { unicode_char | little_u_value | big_u_value | escaped_char }
 byte_value       = { octal_byte_value | hex_byte_value }
-octal_byte_value = { "\\" ~ octal_digit{3} }
-hex_byte_value   = { "\\" ~ "x" ~ hex_digit{2} }
-little_u_value   = { "\\" ~ "u" ~ hex_digit{4} }
-big_u_value      = { "\\" ~ "U" ~ hex_digit{8} }
-escaped_char     = { "\\" ~ ( "a" | "b" | "f" | "n" | "r" | "t" | "v" | "\\" | "'" | "\"" ) }
+octal_byte_value = @{ "\\" ~ octal_digit{3} }
+hex_byte_value   = @{ "\\" ~ "x" ~ hex_digit{2} }
+little_u_value   = @{ "\\" ~ "u" ~ hex_digit{4} }
+big_u_value      = @{ "\\" ~ "U" ~ hex_digit{8} }
+escaped_char     = @{ "\\" ~ ( "a" | "b" | "f" | "n" | "r" | "t" | "v" | "\\" | "'" | "\"" ) }
 
 // String literals
 string_lit             = { raw_string_lit | interpreted_string_lit }
@@ -115,13 +115,13 @@ PointerType 	= { "*" ~ BaseType }
 BaseType    	= { Type }
 
 // Operators
-Expression 	= { UnaryExpr ~ ( binary_op ~ Expression )* }
+Expression 	= { UnaryExpr ~ ( ( !( "++" | "--" ) ~ binary_op ) ~ Expression )* }
 UnaryExpr  	= { PrimaryExpr | ( unary_op ~ UnaryExpr ) }
 
-binary_op  	= { "||" | "&&" | rel_op | add_op | mul_op }
-rel_op     	= { "==" | "!=" | "<" | "<=" | ">" | ">=" }
+binary_op  	= { "||" | "&&" | mul_op | rel_op | add_op }
+rel_op     	= { "==" | "!=" | "<=" | ">=" | ">" | "<" }
 add_op     	= { "+" | "-" | "|" | "^" }
-mul_op     	= { "*" | "/" | "%" | "<<" | ">>" | "&" | "&^" }
+mul_op     	= { "*" | "/" | "%" | "<<" | ">>" | "&^" | "&" }
 
 unary_op   	= { "+" | "-" | "!" | "^" | "*" | "&" | "<-" }
 
@@ -259,7 +259,7 @@ assign_op 	= { ( add_op | mul_op )? ~ "=" }
 ShortVarDecl 	= { IdentifierList ~ ":=" ~ ExpressionList }
 
 // If statements
-IfStmt 		= { "if" ~ ( SimpleStmt ~ ";"? )? ~ Expression ~ Block ~ ( "else" ~ ( IfStmt | Block ) )? }
+IfStmt 		= { "if" ~ SimpleStmt ~ ( ";"? ~ Expression )? ~ Block ~ ( "else" ~ ( IfStmt | Block ) )? }
 
 // Switch statements
 SwitchStmt 	= { ExprSwitchStmt | TypeSwitchStmt }
