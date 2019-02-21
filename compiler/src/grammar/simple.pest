@@ -64,10 +64,8 @@ ImportPath  	= { string_lit }
 
 // Declarations and scope
 //======================
-// FIXME
-//TopLevelDecl  	=  { Declaration | FunctionDecl | MethodDecl }
 Declaration   	=  { ConstDecl | TypeDecl | VarDecl }
-TopLevelDecl  	=  { FunctionDecl | Declaration }
+TopLevelDecl  	=  { Declaration | FunctionDecl | MethodDecl }
 
 // Qualified identifiers
 QualifiedIdent 	= { PackageName ~ "." ~ identifier }
@@ -86,14 +84,9 @@ Type      	= { TypeLit | ( "(" ~ Type ~ ")" ) | TypeName }
 TypeName  	= { QualifiedIdent | identifier }
 TypeLit   	= {
 	ArrayType    | StructType    | PointerType |
-	FunctionType | InterfaceType | SliceType
+	FunctionType | InterfaceType | SliceType   |
+	MapType      | ChannelType
 }
-//TypeLit   	= {
-//	ArrayType    | StructType    | PointerType |
-//	FunctionType | InterfaceType | SliceType   |
-//	MapType      | ChannelType
-//}
-
 
 // Array types
 ArrayType   	= { "[" ~ ArrayLength ~ "]" ~ ElementType }
@@ -102,6 +95,15 @@ ElementType 	= { Type }
 
 // Slice types
 SliceType 	= { "[" ~ "]" ~ ElementType }
+
+// Map types
+MapType     	= { "map" ~ "[" ~ KeyType ~ "]" ~ ElementType }
+KeyType     	= { Type }
+
+// Channel types
+ChannelType    = { ( ChannelTypeIn | ChannelTypeOut | "chan" ) ~ ElementType }
+ChannelTypeIn  = { "chan" ~ "<-" }
+ChannelTypeOut = { "<-" ~ "chan" }
 
 // Struct types
 StructType    	= { "struct" ~ "{" ~ ( FieldDecl ~ ";"? )* ~ "}" }
@@ -206,10 +208,14 @@ FunctionName 	= { identifier }
 FunctionBody 	= { Block }
 
 // Function types
-FunctionType   	= { "func" ~ Signature }
-Signature      	= { Parameters ~ Result? }
-Result         	= { ( "(" ~ ResultParameters ~ ( "," ~ ResultParameters )* ~ ")" ) | Type }
+FunctionType   	 = { "func" ~ Signature }
+Signature      	 = { Parameters ~ Result? }
+Result         	 = { ( "(" ~ ResultParameters ~ ( "," ~ ResultParameters )* ~ ")" ) | Type }
 ResultParameters = { ( IdentifierList ~ Type ) | Type }
-Parameters     	= { "(" ~ ( ParameterList ~ ","? )? ~ ")" }
-ParameterList  	= { ParameterDecl ~ ( "," ~ ParameterDecl )* }
-ParameterDecl  	= { ( IdentifierList )? ~ ( "..." )? ~ Type }
+Parameters     	 = { "(" ~ ( ParameterList ~ ","? )? ~ ")" }
+ParameterList  	 = { ParameterDecl ~ ( "," ~ ParameterDecl )* }
+ParameterDecl  	 = { ( IdentifierList )? ~ ( "..." )? ~ Type }
+
+// Method declarations
+MethodDecl 	= { "func" ~ Receiver ~ MethodName ~ Signature ~ FunctionBody? }
+Receiver   	= { Parameters }
