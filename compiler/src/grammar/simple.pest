@@ -208,8 +208,8 @@ FunctionBody 	= { Block }
 // Function types
 FunctionType   	= { "func" ~ Signature }
 Signature      	= { Parameters ~ Result? }
-Result         	= { Parameters | Type }
+Result         	= { ( "(" ~ ResultParameters ~ ( "," ~ ResultParameters )* ~ ")" ) | Type }
+ResultParameters = { ( IdentifierList ~ Type ) | Type }
 Parameters     	= { "(" ~ ( ParameterList ~ ","? )? ~ ")" }
 ParameterList  	= { ParameterDecl ~ ( "," ~ ParameterDecl )* }
 ParameterDecl  	= { ( IdentifierList )? ~ ( "..." )? ~ Type }
-
