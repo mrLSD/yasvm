@@ -67,7 +67,7 @@ ImportPath  	= { string_lit }
 // FIXME
 //TopLevelDecl  	=  { Declaration | FunctionDecl | MethodDecl }
 Declaration   	=  { ConstDecl | TypeDecl | VarDecl }
-TopLevelDecl  	=  { Declaration }
+TopLevelDecl  	=  { FunctionDecl | Declaration }
 
 // Qualified identifiers
 QualifiedIdent 	= { PackageName ~ "." ~ identifier }
@@ -85,7 +85,8 @@ ExpressionList 	= { Expression ~ ( "," ~ Expression )* }
 Type      	= { TypeLit | ( "(" ~ Type ~ ")" ) | TypeName }
 TypeName  	= { QualifiedIdent | identifier }
 TypeLit   	= {
-	ArrayType    | StructType    | PointerType | SliceType
+	ArrayType    | StructType    | PointerType |
+	FunctionType | InterfaceType | SliceType
 }
 //TypeLit   	= {
 //	ArrayType    | StructType    | PointerType |
@@ -136,8 +137,8 @@ OperandName 	= { identifier | QualifiedIdent }
 
 // Interface types
 // FIXME
-//InterfaceType      = { "interface" ~ "{" ~ ( MethodSpec ~ ";"? )* ~ "}" }
-//MethodSpec         = { ( MethodName ~ Signature ) | InterfaceTypeName }
+InterfaceType      = { "interface" ~ "{" ~ ( MethodSpec )* ~ "}" }
+MethodSpec         = { ( MethodName ~ Signature ) | InterfaceTypeName }
 MethodName         = { identifier }
 InterfaceTypeName  = { TypeName }
 
@@ -183,3 +184,32 @@ AliasDecl 	= { identifier ~ "=" ~ Type }
 
 // definitions
 TypeDef 	= { identifier ~ Type }
+
+// Blocks
+//======================
+Block 		= { "{" ~ StatementList ~ "}" }
+StatementList 	= { ( Statement ~ ";"? )* }
+
+// Statements
+//=======================================
+Statement 	= { Declaration
+//	Declaration  | LabeledStmt | SimpleStmt      |
+//	GoStmt       | ReturnStmt  | BreakStmt       |
+//	ContinueStmt | GotoStmt    | FallthroughStmt |
+//	Block        | IfStmt      | SwitchStmt      |
+//	SelectStmt   | ForStmt     | DeferStmt
+}
+
+// Function declarations
+FunctionDecl 	= { "func" ~ FunctionName ~ Signature ~ FunctionBody? }
+FunctionName 	= { identifier }
+FunctionBody 	= { Block }
+
+// Function types
+FunctionType   	= { "func" ~ Signature }
+Signature      	= { Parameters ~ Result? }
+Result         	= { Parameters | Type }
+Parameters     	= { "(" ~ ( ParameterList ~ ","? )? ~ ")" }
+ParameterList  	= { ParameterDecl ~ ( "," ~ ParameterDecl )* }
+ParameterDecl  	= { ( IdentifierList )? ~ ( "..." )? ~ Type }
+
