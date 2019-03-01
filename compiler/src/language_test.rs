@@ -19,7 +19,7 @@ fn test_characters() {
 
     // unicode_char
     let rules = [
-        (" ", false),
+        (" ", true),
         ("Ю", true),
         ("⇨", true),
         ("_", true),
@@ -127,44 +127,61 @@ fn test_letters_and_digits() {
 fn test_identifier() {
     // identifier
     let rules = [
-        ("bool", false),
-        ("int64", false),
-        ("true", false),
-        //("ints", true),
+        ("bool", true),
+        ("int64", true),
+        ("true", true),
+        ("ints", true),
         ("the_test", true),
-        ("the test", true),
         ("_test", true),
         ("test", true),
+        ("123test", false),
         ("test123_test", true),
     ];
     rules.iter().for_each(|(code, expect)| {
         let res = LanguageParser::parse(Rule::identifier, *code);
         if res.is_ok() {
             let res = res.clone().unwrap().next().unwrap();
-            dbg!((&res.as_str(), &code));
         }
         assert_eq!(res.is_ok(), *expect);
     });
+}
 
-    let code = r#"
-package main
+#[test]
+fn test_main_block() {
+    let code = r#"package main
 
 func main() {
-const (
-    tst tst =;
-)
-    tst();
+    var i = 1.2 + z*3 - ( z/3)
+    i += 2
+    print(`v`, i)
 }
 "#;
     let res = LanguageParser::parse(Rule::SourceFile, code);
 
     if res.is_ok() {
-        dbg!(&res.clone().unwrap().tokens());
+            use pest::iterators::Pairs;
+        fn render_token(elem: Pairs<Rule>, offset: usize) {
+            let spaces: String = std::iter::repeat(" ").take(offset).collect();
+            for line in elem {
+                let mut inner = line.clone().into_inner();
+                if inner.next().is_some() {
+                    println!("{}{:?}", spaces, line.as_rule());
+                    render_token(line.into_inner(), offset + 1);
+                } else {
+                    println!("{}{:?} {}", spaces, line.as_rule(), line.as_str());
+                }
+            }
+        }
+
+        //dbg!(&res.clone().unwrap().tokens());
+        //let res = res.clone().unwrap();
+        //dbg!((&res));
         let res = res.clone().unwrap().next().unwrap();
-        dbg!((&res.as_str(), &code));
+        render_token(res.into_inner(), 0);
     } else {
         dbg!(&res);
     }
 
     assert_eq!(res.is_ok(), true);
+
 }

@@ -191,11 +191,11 @@ StatementList 	= { ( Statement ~ ";"? )* }
 // Statements
 //=======================================
 Statement 	= {
-	Declaration  | LabeledStmt | ForStmt         |
-	GoStmt       | ReturnStmt  | BreakStmt       |
-	ContinueStmt | GotoStmt    | FallthroughStmt |
-	IfStmt       | SwitchStmt  | DeferStmt       |
-	SelectStmt   | SimpleStmt  | Block
+	Declaration  | LabeledStmt  | ForStmt         |
+	GotoStmt     | GoStmt       | ReturnStmt      |
+	BreakStmt    | ContinueStmt | FallthroughStmt |
+	IfStmt       | SwitchStmt   | DeferStmt       |
+	SelectStmt   | SimpleStmt   | Block
 }
 
 // Function declarations
@@ -235,7 +235,7 @@ Element       	= { Expression | LiteralValue }
 
 // Labeled statements
 LabeledStmt 	= { Label ~ ":" ~ Statement }
-Label       	= { identifier }
+Label       	= { !( "return" | "break" | "continue") ~ identifier }
 
 SimpleStmt 	= {
 	SendStmt | IncDecStmt | Assignment | ShortVarDecl | ExpressionStmt
