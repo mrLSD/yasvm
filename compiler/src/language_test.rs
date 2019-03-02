@@ -151,7 +151,7 @@ fn test_main_block() {
     let code = r#"package main
 
 func main() {
-    var i = 1.2 + z*3 - ( z/3)
+    var i = 4.3 + z*3 - ( z/3)
     i += 2
     print(`v`, i)
 }

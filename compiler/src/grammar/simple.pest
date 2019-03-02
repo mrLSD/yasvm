@@ -20,10 +20,10 @@ hex_digit	= { ASCII_HEX_DIGIT }
 identifier 	= @{ letter+ ~ ( letter | unicode_digit )* }
 
 // Integer literals
-int_lit		= { decimal_lit | octal_lit | hex_lit }
-decimal_lit 	= @{ ASCII_NONZERO_DIGIT ~ decimal_digit* }
-octal_lit   	= @{ "0" ~ octal_digit* }
-hex_lit     	= @{ "0" ~ ( "x" | "X" ) ~ hex_digit+ }
+int_lit		= @{ decimal_lit | octal_lit | hex_lit }
+decimal_lit 	= { ASCII_NONZERO_DIGIT ~ decimal_digit* }
+octal_lit   	= { "0" ~ octal_digit* }
+hex_lit     	= { "0" ~ ( "x" | "X" ) ~ hex_digit+ }
 
 // Floating-point literals
 float_lit 	= @{
@@ -31,11 +31,11 @@ float_lit 	= @{
 	( decimals ~ exponent ) |
 	( "." ~ decimals ~ exponent? )
 }
-decimals  	= @{ decimal_digit+ }
-exponent  	= @{ ( "e" | "E" ) ~ ( "+" | "-" )? ~ decimals }
+decimals  	= { decimal_digit+ }
+exponent  	= { ( "e" | "E" ) ~ ( "+" | "-" )? ~ decimals }
 
 // Imaginary literals
-imaginary_lit 	= @{ ( decimals | float_lit ) ~ "i" }
+imaginary_lit 	= @{ ( float_lit | decimals ) ~ "i" }
 
 // Rune literals
 rune_lit         = @{ "'" ~ ( !"'" ~ unicode_value | byte_value ) ~ "'" }
@@ -48,7 +48,7 @@ big_u_value      = @{ "\\" ~ "U" ~ hex_digit{8} }
 escaped_char     = @{ "\\" ~ ( "a" | "b" | "f" | "n" | "r" | "t" | "v" | "\\" | "'" | "\"" ) }
 
 // String literals
-string_lit             = { raw_string_lit | interpreted_string_lit }
+string_lit             = @{ raw_string_lit | interpreted_string_lit }
 raw_string_lit         = { "`" ~ ( !"`" ~ unicode_char | newline )* ~ "`" }
 interpreted_string_lit = { "\"" ~ ( !"\"" ~ unicode_value | byte_value )* ~ "\"" }
 
@@ -131,7 +131,7 @@ Conversion 	= { Type ~ "(" ~ Expression ~ ( "," )? ~ ")" }
 // Operands
 Operand     	= { Literal | OperandName | ( "(" ~ Expression ~ ")" ) }
 Literal     	= { BasicLit | CompositeLit | FunctionLit }
-BasicLit    	= { int_lit | float_lit | imaginary_lit | rune_lit | string_lit }
+BasicLit    	= { float_lit | int_lit | imaginary_lit | rune_lit | string_lit }
 OperandName 	= { identifier | QualifiedIdent }
 
 // Interface types

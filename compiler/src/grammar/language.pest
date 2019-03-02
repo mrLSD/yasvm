@@ -50,32 +50,32 @@ operators 	= {
 }
 
 // Integer literals
-int_lit		= { decimal_lit | octal_lit | hex_lit }
-decimal_lit 	= { ASCII_NONZERO_DIGIT ~ decimal_digit* }
-octal_lit   	= { "0" ~ octal_digit* }
-hex_lit     	= { "0" ~ ( "x" | "X" ) ~ hex_digit+ }
+int_lit		= @{ decimal_lit | octal_lit | hex_lit }
+decimal_lit 	= @{ ASCII_NONZERO_DIGIT ~ decimal_digit* ~ !"." }
+octal_lit   	= @{ "0" ~ octal_digit* }
+hex_lit     	= @{ "0" ~ ( "x" | "X" ) ~ hex_digit+ }
 
 // Floating-point literals
-float_lit 	= {
+float_lit 	= @{
 	( decimals ~ "." ~ decimals? ~ exponent? ) |
 	( decimals ~ exponent ) |
 	( "." ~ decimals ~ exponent? )
 }
 decimals  	= { decimal_digit+ }
-exponent  	= { ( "e" | "E" ) ~ ( "+" | "-" )? ~ decimals }
+exponent  	= @{ ( "e" | "E" ) ~ ( "+" | "-" )? ~ decimals }
 
 // Imaginary literals
-imaginary_lit 	= { ( decimals | float_lit ) ~ "i" }
+imaginary_lit 	= @{ ( float_lit | decimals ) ~ "i" }
 
 // Rune literals
-rune_lit         = { "'" ~ ( unicode_value | byte_value ) ~ "'" }
+rune_lit         = @{ "'" ~ ( unicode_value | byte_value ) ~ "'" }
 unicode_value    = { unicode_char | little_u_value | big_u_value | escaped_char }
 byte_value       = { octal_byte_value | hex_byte_value }
-octal_byte_value = { "\\" ~ octal_digit{3} }
-hex_byte_value   = { "\\" ~ "x" ~ hex_digit{2} }
-little_u_value   = { "\\" ~ "u" ~ hex_digit{4} }
-big_u_value      = { "\\" ~ "U" ~ hex_digit{8} }
-escaped_char     = { "\\" ~ ( "a" | "b" | "f" | "n" | "r" | "t" | "v" | "\\" | "'" | "\"" ) }
+octal_byte_value = @{ "\\" ~ octal_digit{3} }
+hex_byte_value   = @{ "\\" ~ "x" ~ hex_digit{2} }
+little_u_value   = @{ "\\" ~ "u" ~ hex_digit{4} }
+big_u_value      = @{ "\\" ~ "U" ~ hex_digit{8} }
+escaped_char     = @{ "\\" ~ ( "a" | "b" | "f" | "n" | "r" | "t" | "v" | "\\" | "'" | "\"" ) }
 
 // String literals
 string_lit             = { raw_string_lit | interpreted_string_lit }
@@ -202,14 +202,14 @@ Receiver   	= { Parameters }
 // Operands
 Operand     	= { Literal | OperandName | ( "(" ~ Expression ~ ")" ) }
 Literal     	= { BasicLit | CompositeLit | FunctionLit }
-BasicLit    	= { int_lit | float_lit | imaginary_lit | rune_lit | string_lit }
+BasicLit    	= { imaginary_lit | float_lit | rune_lit | string_lit }
 OperandName 	= { identifier | QualifiedIdent }
 
 // Qualified identifiers
 QualifiedIdent 	= { PackageName ~ "." ~ identifier }
 
 // Composite literals
-CompositeLit  	= { LiteralType ~ LiteralValue }
+CompositeLit  	= { int_lit | ( LiteralType ~ LiteralValue ) }
 LiteralType   	=  {
 	StructType | ArrayType |
 	( "[" ~ "..." ~ "]" ~ ElementType ) |
